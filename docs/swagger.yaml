@@ -1,0 +1,53 @@
+basePath: /api/v1
+definitions:
+  main.ChallengeRequest:
+    properties:
+      challengeWon:
+        example: true
+        type: boolean
+      userEmail:
+        example: nilesh@wso2.com
+        type: string
+    type: object
+  main.ChallengeResponse:
+    properties:
+      id:
+        type: string
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: Rubik Challenge API documentation
+  version: 1.0.0
+paths:
+  /api/v1/challenge:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/main.ChallengeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Okay
+          schema:
+            $ref: '#/definitions/main.ChallengeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Send Challenge Result Email
+      tags:
+      - Email
+swagger: "2.0"
