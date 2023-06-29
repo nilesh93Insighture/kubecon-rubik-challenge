@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_kubecon_rubik_challenge_1688015315958-push-trigger-input-set
+  identifier: Build_kubecon_rubik_challenge_1688015315958pushtriggerinputset
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: Build_kubecon_rubik_challenge_1688015315958
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>
