@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_kubecon_rubik_challenge_1688015315958-pr-trigger-input-set
+  identifier: Build_kubecon_rubik_challenge_1688015315958prtriggerinputset
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: Build_kubecon_rubik_challenge_1688015315958
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
