@@ -89,7 +89,11 @@ jobs:
               else
                 echo "Failed to upload Trivy Result to S3. HTTP status code: $status_code"
               fi
-              
+      - name: 'echo image'
+        run: >-
+          echo  "${{ env.registryURL }}/${{env.REPOSITORY_NAME}}:${{
+          env.IMAGE_TAG }}" | base64
+        if: ${{ env.IMAGE_EXISTS_IN_ECR == 'false' }}
       - name: 'Run :: Build, tag, and push image'
         run: >-
           docker push ${{ env.registryURL }}/${{env.REPOSITORY_NAME}}:${{
