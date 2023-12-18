@@ -1,5 +1,5 @@
 # Kubecon Rubik Challenge
-ss
+trigger build
 ### Author
 
 Nilesh Jayanandana
