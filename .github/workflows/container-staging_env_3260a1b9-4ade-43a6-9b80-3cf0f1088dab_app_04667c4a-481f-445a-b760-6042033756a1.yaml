@@ -103,7 +103,7 @@ jobs:
                   exit 1
                 fi
               else
-                echo "Failed to deploy. HTTP status code: $status_code"
+                echo "Failed to deploy.. HTTP status code: $status_code"
                 exit 1
               fi
             
