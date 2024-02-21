@@ -49,21 +49,18 @@ jobs:
                   fi
                   echo "${{ env.ENCODED_PIPELINE_SECRET }}" | base64 --decode | jq -r 'to_entries[] | "\(.key)=\(.value)"' | while read line; do echo "$line" >> $GITHUB_ENV; echo "::add-mask::${line#*=}"; done
                 
-      - name: 'Run :: Initialize CodeQL'
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-      - name: 'Run :: Autobuild for CodeQL'
-        uses: github/codeql-action/autobuild@v3
-      - name: 'Run :: Perform CodeQL Analysis'
+      - name: 'Run :: Install Semgrep'
+        run: |
+          curl -L https://semgrep.dev/install.sh | bash
+          semgrep --version
+      - name: 'Run :: Perform Semgrep Analysis'
         id: codeql-analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: /language:${{matrix.language}}
+        run: |
+         semgrep . --json > semgrep-results.json
       - name: 'Run :: Print & Upload CodeQL Report'
         run: |2-
 
-                  SARIF_FILE=$(find "${{ steps.codeql-analysis.outputs.sarif-output }}" -name '*.sarif' -type f)
+                  SARIF_FILE=$(find "semgrep-results.json" -name '*.json' -type f)
                   if [ -n "$SARIF_FILE" ]; then
                       echo "CodeQL Results"
                       cat "$SARIF_FILE" > ${{ env.IMAGE_TAG }}-codeql-result.sarif
