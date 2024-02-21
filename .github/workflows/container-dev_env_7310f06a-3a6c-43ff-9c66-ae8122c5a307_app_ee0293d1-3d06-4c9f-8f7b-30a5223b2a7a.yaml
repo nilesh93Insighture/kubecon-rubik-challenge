@@ -51,7 +51,7 @@ jobs:
                 
       - name: 'Run :: Install Semgrep'
         run: |
-          docker run -it -v "${PWD}:/src" semgrep/semgrep semgrep /src --json --quiet > semgrep_results.json
+          docker run -i -v "${PWD}:/src" semgrep/semgrep semgrep /src --json --quiet > semgrep_results.json
 
       - name: 'Run :: Print & Upload CodeQL Report'
         run: |2-
