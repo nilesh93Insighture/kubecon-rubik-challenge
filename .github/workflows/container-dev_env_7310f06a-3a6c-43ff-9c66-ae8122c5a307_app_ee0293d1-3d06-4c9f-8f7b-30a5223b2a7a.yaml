@@ -52,10 +52,11 @@ jobs:
       - name: 'Run :: Install Semgrep'
         run: |
           docker run -i -v "${PWD}:/src" semgrep/semgrep semgrep /src --json --quiet > semgrep_results.json
+          cat semgrep_results.json
 
       - name: 'Run :: Print & Upload CodeQL Report'
         run: |2-
-
+                  cat semgrep_results.json
                   SARIF_FILE=$(find "semgrep-results.json" -name '*.json' -type f)
                   if [ -n "$SARIF_FILE" ]; then
                       echo "CodeQL Results"
