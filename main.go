@@ -48,10 +48,13 @@ func main() {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			helpers.RespondwithJSON(w, 200, "healthy")
 		})
+
+		
 	})
 
 	r.Route("/api/v1/", func(r chi.Router) {
 		r.Post("/challenge", ChallengeRoute)
+		r.Get("/vuln", VulnFunc)
 	})
 
 	logrus.Info("http server started")
@@ -82,6 +85,12 @@ func ChallengeRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	helpers.RespondwithJSON(w, 200, obj)
+}
+
+
+func VulnFunc(w http.ResponseWriter, r *http.Request)
+    name := r.URL.Query().Get("name")
+    fmt.Fprintf(w, "Hello, %s!", name)
 }
 
 func ChallengeHandler(ctx context.Context, req ChallengeRequest) (*ChallengeResponse, error) {
