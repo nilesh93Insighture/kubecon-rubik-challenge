@@ -51,12 +51,8 @@ jobs:
                 
       - name: 'Run :: Install Semgrep'
         run: |
-          curl -L https://semgrep.dev/install.sh | bash
-          semgrep --version
-      - name: 'Run :: Perform Semgrep Analysis'
-        id: codeql-analysis
-        run: |
-         semgrep . --json > semgrep-results.json
+          docker run --rm -v $(pwd):/code semgrep/semgrep  /code --json > semgrep_results.json
+
       - name: 'Run :: Print & Upload CodeQL Report'
         run: |2-
 
