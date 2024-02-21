@@ -56,8 +56,7 @@ jobs:
 
       - name: 'Run :: Print & Upload CodeQL Report'
         run: |2-
-                  cat semgrep_results.json
-                  SARIF_FILE=$(find "semgrep-results.json" -name '*.json' -type f)
+                  SARIF_FILE="semgrep_results.json"
                   if [ -n "$SARIF_FILE" ]; then
                       echo "CodeQL Results"
                       cat "$SARIF_FILE" > ${{ env.IMAGE_TAG }}-codeql-result.sarif
