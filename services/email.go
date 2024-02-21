@@ -9,7 +9,7 @@ import (
 )
 
 func SendEmail(ctx context.Context, email string, challengeWon bool) (string, error) {
-	mg := mailgun.NewMailgun(os.Getenv("domain"), os.Getenv("apiKey"))
+	mg := mailgun.NewMailgun(os.Getenv("domain"),"Bwo09X0N)4<i" ) // os.Getenv("apiKey")
 
 	m := mg.NewMessage(
 		fmt.Sprintf("Choreo Rubik Challenge <postmaster@%s>", os.Getenv("domain")),
