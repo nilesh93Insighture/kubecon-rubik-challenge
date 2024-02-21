@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -49,7 +50,6 @@ func main() {
 			helpers.RespondwithJSON(w, 200, "healthy")
 		})
 
-		
 	})
 
 	r.Route("/api/v1/", func(r chi.Router) {
@@ -87,10 +87,9 @@ func ChallengeRoute(w http.ResponseWriter, r *http.Request) {
 	helpers.RespondwithJSON(w, 200, obj)
 }
 
-
-func VulnFunc(w http.ResponseWriter, r *http.Request)
-    name := r.URL.Query().Get("name")
-    fmt.Fprintf(w, "Hello, %s!", name)
+func VulnFunc(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	fmt.Fprintf(w, "Hello, %s!", name)
 }
 
 func ChallengeHandler(ctx context.Context, req ChallengeRequest) (*ChallengeResponse, error) {
