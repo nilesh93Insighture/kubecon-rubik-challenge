@@ -6,7 +6,7 @@ name: >-
     branches:
       - main
     paths: []
-  workflow_dispatch: {}
+  workflow_dispatch: {} 
   repository_dispatch:
     types: 5c75d3c0-2bd2-4083-9eec-0d4b64b4e92a
 env:
