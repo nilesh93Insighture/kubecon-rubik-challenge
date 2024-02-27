@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: 'Run :: Checkout repository for Code Scan'
         uses: actions/checkout@v4
-      - name: 'Run :: Decoding Secrets 045501f9-49d8-4340-a482-187a6dae69ae'
+      - name: 'Run :: Decoding Secrets 0ade0178-71ac-42cf-a392-37c2154992d0'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -40,21 +40,18 @@ jobs:
                   echo "${{ env.ENCODED_PIPELINE_SECRET }}" | base64 --decode | jq -r 'to_entries[] | "\(.key)=\(.value)"' | while read line; do echo "$line" >> $GITHUB_ENV; echo "::add-mask::${line#*=}"; done
                 
       - name: 'Run :: Install Semgrep, Scan and Print'
-        run: |2-
-
-                  docker run -i -v "${PWD}:/src" semgrep/semgrep semgrep /src --json --quiet > semgrep_results.json
-                  echo "Scan Results..."
-                  cat semgrep_results.json
-                
+        run: >-
+          docker run -i -v "${PWD}:/src" semgrep/semgrep semgrep /src --json
+          --quiet > semgrep_results.json
       - name: 'Run :: Upload Code Scan Report'
         run: |2-
 
                   SARIF_FILE="semgrep_results.json"
                   if [ -n "$SARIF_FILE" ]; then
-                    cat "$SARIF_FILE" > ${{ env.IMAGE_TAG }}-codeql-result.sarif
-                    echo "Uploading CodeQL Results to S3 :: ${{ env.IMAGE_TAG }}-codeql-result.sarif"
+                    cat "$SARIF_FILE" > ${{ env.IMAGE_TAG }}-code-scan-report.sarif
+                    echo "Uploading CodeQL Results to S3 :: ${{ env.IMAGE_TAG }}-code-scan-report.sarif"
            
-                    response=$(curl -X POST -F 'file=@${{ env.IMAGE_TAG }}-codeql-result.sarif' -F 'provider=aws' -F 'resourceType=codeql-report' -F 'cloudStoragePath=/${{ env.PIPELINE_APPLICATION_ID }}/codeql_results/'  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-auth-by: sa' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-environment-id: ${{ env.PIPELINE_ENVIRONMENT_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-resource-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'Content-Type: multipart/form-data'  '${{ env.S3_UPLOAD_ENDPOINT }}')
+                    response=$(curl -X POST -F 'file=@${{ env.IMAGE_TAG }}-code-scan-report.sarif' -F 'provider=aws' -F 'resourceType=codeql-report' -F 'cloudStoragePath=/${{ env.PIPELINE_APPLICATION_ID }}/codeql_results/'  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-auth-by: sa' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-resource-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'Content-Type: multipart/form-data'  '${{ env.S3_UPLOAD_ENDPOINT }}')
 
                     if echo "$response" | grep -q '"success":true'; then
                       echo "SUCCESS :: $response"
@@ -70,7 +67,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
-      - name: 'Run :: Decoding Secrets 4550253c-4441-4484-9d86-af7cba723069'
+      - name: 'Run :: Decoding Secrets f5f661bf-9758-49c8-ab1f-29d91e8f04dc'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -97,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.client_payload.releaseData }}
     steps:
-      - name: 'Run :: Decoding Secrets 30795f0d-db3a-4b27-8c4a-cfc3967d8e91'
+      - name: 'Run :: Decoding Secrets c4f27bef-ff7f-44bd-9fd6-52a1c894bd69'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -163,7 +160,7 @@ jobs:
 
               git fetch
               git checkout ${{ github.event.client_payload.commitId }}
-      - name: 'Run :: Decoding Secrets 2e894c4d-0e4f-41e0-a558-e1392457c4fd'
+      - name: 'Run :: Decoding Secrets cd51a736-5bfc-44f5-81d1-30b30295ef8b'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -200,7 +197,7 @@ jobs:
         with:
           image-ref: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           format: ${{env.TRIVY_RESULT_FORMAT}}
-          output: ${{ env.IMAGE_TAG }}-trivy-result.json
+          output: ${{ env.IMAGE_TAG }}-image-vulnerability-report.json
           exit-code: ${{env.TRIVY_SCAN_EXIT_CODE}}
           vuln-type: os,library
           severity: ${{env.SCAN_SEVERITY}}
@@ -210,20 +207,20 @@ jobs:
         run: |2-
 
               # Minifying Json
-              jq -c '.' ${{ env.IMAGE_TAG }}-trivy-result.json > ${{ env.IMAGE_TAG }}-trivy-result.min.json
-              trivy_result=$(cat "${{ env.IMAGE_TAG }}-trivy-result.min.json")
+              jq -c '.' ${{ env.IMAGE_TAG }}-image-vulnerability-report.json > ${{ env.IMAGE_TAG }}-image-vulnerability-report.min.json
+              trivy_result=$(cat "${{ env.IMAGE_TAG }}-image-vulnerability-report.min.json")
 
               # Set the desired severity level
               desiredSeverity="${{ env.SCAN_SEVERITY }}"
               IFS=',' read -ra severities <<< "$desiredSeverity"  # Split the severity string
 
               # Print the tags array for debugging
-              jq '.runs[0].tool.driver.rules[].properties.tags' "${{ env.IMAGE_TAG }}-trivy-result.json"
+              jq '.runs[0].tool.driver.rules[].properties.tags' "${{ env.IMAGE_TAG }}-image-vulnerability-report.json"
 
               VULNERABILITY_COUNT=0
 
               for severity in "${severities[@]}"; do
-                count=$(jq --arg severity "$severity" '.runs[0].tool.driver.rules | map(select(.properties.tags and (.properties.tags | map(tostring) | index($severity) // empty))) | length' "${{ env.IMAGE_TAG }}-trivy-result.json")
+                count=$(jq --arg severity "$severity" '.runs[0].tool.driver.rules | map(select(.properties.tags and (.properties.tags | map(tostring) | index($severity) // empty))) | length' "${{ env.IMAGE_TAG }}-image-vulnerability-report.json")
                 echo "Number of $severity vulnerabilities: $count"
                 VULNERABILITY_COUNT=$((VULNERABILITY_COUNT + count))
               done
@@ -242,10 +239,10 @@ jobs:
 
 
               # Minifying Json
-              jq -c '.' ${{ env.IMAGE_TAG }}-trivy-result.json > ${{ env.IMAGE_TAG }}-trivy-result.min.json
+              jq -c '.' ${{ env.IMAGE_TAG }}-image-vulnerability-report.json > ${{ env.IMAGE_TAG }}-image-vulnerability-report.min.json
 
               # Uploading Minified Trivy Resuls
-              response=$(curl -X POST -F 'file=@${{ env.IMAGE_TAG }}-trivy-result.min.json' -F 'provider=aws' -F 'resourceType=trivy-report' -F 'cloudStoragePath=/${{ env.PIPELINE_APPLICATION_ID }}/trivy_results/'  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-environment-id: ${{ env.PIPELINE_ENVIRONMENT_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-resource-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'x-auth-by: sa' -H 'Content-Type: multipart/form-data'  '${{ env.S3_UPLOAD_ENDPOINT }}')
+              response=$(curl -X POST -F 'file=@${{ env.IMAGE_TAG }}-image-vulnerability-report.min.json' -F 'provider=aws' -F 'resourceType=trivy-report' -F 'cloudStoragePath=/${{ env.PIPELINE_APPLICATION_ID }}/trivy_results/'  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-environment-id: ${{ env.PIPELINE_ENVIRONMENT_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-resource-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'x-auth-by: sa' -H 'Content-Type: multipart/form-data'  '${{ env.S3_UPLOAD_ENDPOINT }}')
 
               if echo "$response" | grep -q '"success":true'; then
                 echo "SUCCESS :: $response"
@@ -275,7 +272,7 @@ jobs:
       - build-and-push
     if: ${{ !(failure() || cancelled()) }}
     steps:
-      - name: 'Run :: Decoding Secrets e5a4cbfc-fa81-4c62-87a9-4673f0998949'
+      - name: 'Run :: Decoding Secrets 7ab0afd6-d614-49ab-b861-2d3427d58801'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -298,7 +295,7 @@ jobs:
       - build-and-push
     if: ${{ failure() || cancelled() }}
     steps:
-      - name: 'Run :: Decoding Secrets d302d974-16c0-48d2-b476-d078596b7d8a'
+      - name: 'Run :: Decoding Secrets 38d8c4a4-a598-4e39-8c84-1b60d1f227eb'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -323,7 +320,7 @@ jobs:
       needs.build-and-push.outputs.stepsCanProceed == 'true' && ${{
       github.event.client_payload.releaseData == null }}
     steps:
-      - name: 'Run :: Decoding Secrets c4cf6376-3c43-49b8-bd74-74467b489a55'
+      - name: 'Run :: Decoding Secrets 8a6367f5-61e4-4a5b-bd8f-871a1e40d32c'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
