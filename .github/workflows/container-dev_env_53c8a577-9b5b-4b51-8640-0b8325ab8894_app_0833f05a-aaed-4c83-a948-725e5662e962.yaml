@@ -12,7 +12,7 @@ name: >-
 env:
   ENCODED_PIPELINE_SECRET: >-
     ${{secrets.KUBECONRUBIKCHALLENGE_ENV_53C8A5779B5B4B5186400B8325AB8894_APP_0833F05AAAED4C83A948725E5662E962_CONTAINERDEV_ENV_53C8A5779B5B4B5186400B8325AB8894_APP_0833F05AAAED4C83A948725E5662E962_YAML}}
-  IMAGE_TAG: ${{github.event.client_payload.commitId || github.sha}}
+  COMMIT_ID: ${{github.event.client_payload.commitId || github.sha}}
   IMAGE_NAME: docker.io/nj93/dewsara-test
   DOCKER_FILE_PATH: Dockerfile
   DOCKER_BUILD_CONTEXT: .
@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: 'Run :: Checkout repository for Code Scan'
         uses: actions/checkout@v4
-      - name: 'Run :: Decoding Secrets 0ade0178-71ac-42cf-a392-37c2154992d0'
+      - name: 'Run :: Decoding Secrets 6455bb5a-b5de-4b26-8906-aaeb358e6c03'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -48,10 +48,10 @@ jobs:
 
                   SARIF_FILE="semgrep_results.json"
                   if [ -n "$SARIF_FILE" ]; then
-                    cat "$SARIF_FILE" > ${{ env.IMAGE_TAG }}-code-scan-report.sarif
-                    echo "Uploading CodeQL Results to S3 :: ${{ env.IMAGE_TAG }}-code-scan-report.sarif"
+                    cat "$SARIF_FILE" > ${{ env.COMMIT_ID }}-code-scan-report.sarif
+                    echo "Uploading CodeQL Results to S3 :: ${{ env.COMMIT_ID }}-code-scan-report.sarif"
            
-                    response=$(curl -X POST -F 'file=@${{ env.IMAGE_TAG }}-code-scan-report.sarif' -F 'provider=aws' -F 'resourceType=codeql-report' -F 'cloudStoragePath=/${{ env.PIPELINE_APPLICATION_ID }}/codeql_results/'  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-auth-by: sa' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-resource-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'Content-Type: multipart/form-data'  '${{ env.S3_UPLOAD_ENDPOINT }}')
+                    response=$(curl -X POST -F 'file=@${{ env.COMMIT_ID }}-code-scan-report.sarif' -F 'provider=aws' -F 'resourceType=code-scan-report' -F 'cloudStoragePath=/${{ env.PIPELINE_APPLICATION_ID }}/code-scan-reports/'  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-auth-by: sa' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-resource-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'Content-Type: multipart/form-data'  '${{ env.S3_UPLOAD_ENDPOINT }}')
 
                     if echo "$response" | grep -q '"success":true'; then
                       echo "SUCCESS :: $response"
@@ -67,7 +67,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
-      - name: 'Run :: Decoding Secrets f5f661bf-9758-49c8-ab1f-29d91e8f04dc'
+      - name: 'Run :: Decoding Secrets af37f1c2-4e64-49cc-a40c-f7537df0372b'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.client_payload.releaseData }}
     steps:
-      - name: 'Run :: Decoding Secrets c4f27bef-ff7f-44bd-9fd6-52a1c894bd69'
+      - name: 'Run :: Decoding Secrets 1e6a4061-887d-49e9-b57a-a94b14851ade'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -119,8 +119,8 @@ jobs:
                 echo "userName          : ${{ github.repository_owner }}"
                 echo "repositoryName    : ${{ github.repository }}"
 
-                echo "commitId          : ${{ env.IMAGE_TAG }}"
-                echo "commitHash        : ${{ env.IMAGE_TAG }}"
+                echo "commitId          : ${{ env.COMMIT_ID }}"
+                echo "commitHash        : ${{ env.COMMIT_ID }}"
                 echo "commitAvatar      : https://github.com/${{ github.event.head_commit.author.name }}.png"
                 echo "commitTime        : ${{ github.event.head_commit.timestamp }}"
                 echo "commitMessage     : ${{ github.event.head_commit.message }}"
@@ -131,7 +131,7 @@ jobs:
                 echo "imageRegistryURL  : ${{ env.IMAGE_NAME }}",
 
                 # Storing Release Infomation for Deployment
-                response=$(curl -X POST -d "releaseId=${{ github.event.client_payload.releaseData.releaseId }}&pipelineId=${{ github.event.client_payload.releaseData.pipelineId }}&pipelineRunId=${{ github.run_id }}&versionId=${{ env.DEPLOYMENT_APP_VERSION_ID }}&applicationId=${{ github.event.client_payload.releaseData.appId }}&credentialId=${{ env.PIPELINE_CREDENTIAL_ID }}&userName=${{ github.repository_owner }}&repositoryName=${{ github.repository }}&commitId=${{ env.IMAGE_TAG }}&commitData[commitHash]=${{ env.IMAGE_TAG }}&commitData[commitAvatar]=https://github.com/${{ github.event.head_commit.author.name }}.png&commitData[commitTime]=${{ github.event.head_commit.timestamp }}&commitData[commitMessage]=${{ github.event.head_commit.message }}&commitData[commitUser]=${{ github.event.head_commit.author.name }}&shouldDeploy=${{ env.DEPLOY_STEP_SHOULD_DEPLOY }}&containerName=${{ env.DEPLOYMENT_CONTAINER_NAME }}&imageRegistryURL=${{ env.IMAGE_NAME }}"  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-environment-id: ${{ env.PIPELINE_ENVIRONMENT_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-auth-by: sa' -H 'Content-Type: application/x-www-form-urlencoded'  '${{ env.API_GATEWAY_BASEURL }}/pipeline-service/release/pipeline')
+                response=$(curl -X POST -d "releaseId=${{ github.event.client_payload.releaseData.releaseId }}&pipelineId=${{ github.event.client_payload.releaseData.pipelineId }}&pipelineRunId=${{ github.run_id }}&versionId=${{ env.DEPLOYMENT_APP_VERSION_ID }}&applicationId=${{ github.event.client_payload.releaseData.appId }}&credentialId=${{ env.PIPELINE_CREDENTIAL_ID }}&userName=${{ github.repository_owner }}&repositoryName=${{ github.repository }}&commitId=${{ env.COMMIT_ID }}&commitData[commitHash]=${{ env.COMMIT_ID }}&commitData[commitAvatar]=https://github.com/${{ github.event.head_commit.author.name }}.png&commitData[commitTime]=${{ github.event.head_commit.timestamp }}&commitData[commitMessage]=${{ github.event.head_commit.message }}&commitData[commitUser]=${{ github.event.head_commit.author.name }}&shouldDeploy=${{ env.DEPLOY_STEP_SHOULD_DEPLOY }}&containerName=${{ env.DEPLOYMENT_CONTAINER_NAME }}&imageRegistryURL=${{ env.IMAGE_NAME }}"  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-environment-id: ${{ env.PIPELINE_ENVIRONMENT_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-auth-by: sa' -H 'Content-Type: application/x-www-form-urlencoded'  '${{ env.API_GATEWAY_BASEURL }}/pipeline-service/release/pipeline')
 
                 if echo "$response" | grep -q '"success":true'; then
                   echo "SUCCESS :: $response"
@@ -160,7 +160,7 @@ jobs:
 
               git fetch
               git checkout ${{ github.event.client_payload.commitId }}
-      - name: 'Run :: Decoding Secrets cd51a736-5bfc-44f5-81d1-30b30295ef8b'
+      - name: 'Run :: Decoding Secrets 00cc5758-0427-4b3e-9031-fe1bd256ff24'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -178,7 +178,7 @@ jobs:
         id: check-image-existence-step-id
         run: |2-
 
-              if docker pull ${{ env.IMAGE_NAME }}:${{env.IMAGE_TAG}} >/dev/null 2>&1; 
+              if docker pull ${{ env.IMAGE_NAME }}:${{env.COMMIT_ID}} >/dev/null 2>&1; 
               then
                 echo "Image exists in registry."
                 echo "STEPS_CAN_PROCEED=false" >> $GITHUB_ENV
@@ -189,15 +189,16 @@ jobs:
               
       - name: 'Run :: Build With Docker'
         run: >-
-          docker build -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f
-          ${{env.DOCKER_FILE_PATH}} ${{env.DOCKER_BUILD_CONTEXT}}
+          docker build -t ${{ env.IMAGE_NAME }}:${{ env.COMMIT_ID }} -f
+          ${{env.DOCKER_FILE_PATH}} ${{ env.DOCKER_BUILD_ARGS }}
+          ${{env.DOCKER_BUILD_CONTEXT}}
         if: ${{ env.STEPS_CAN_PROCEED == 'true' }}
       - name: 'Run :: Trivy vulnerability scanner'
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          image-ref: ${{ env.IMAGE_NAME }}:${{ env.COMMIT_ID }}
           format: ${{env.TRIVY_RESULT_FORMAT}}
-          output: ${{ env.IMAGE_TAG }}-image-vulnerability-report.json
+          output: ${{ env.COMMIT_ID }}-image-vulnerability-report.json
           exit-code: ${{env.TRIVY_SCAN_EXIT_CODE}}
           vuln-type: os,library
           severity: ${{env.SCAN_SEVERITY}}
@@ -207,20 +208,20 @@ jobs:
         run: |2-
 
               # Minifying Json
-              jq -c '.' ${{ env.IMAGE_TAG }}-image-vulnerability-report.json > ${{ env.IMAGE_TAG }}-image-vulnerability-report.min.json
-              trivy_result=$(cat "${{ env.IMAGE_TAG }}-image-vulnerability-report.min.json")
+              jq -c '.' ${{ env.COMMIT_ID }}-image-vulnerability-report.json > ${{ env.COMMIT_ID }}-image-vulnerability-report.min.json
+              trivy_result=$(cat "${{ env.COMMIT_ID }}-image-vulnerability-report.min.json")
 
               # Set the desired severity level
               desiredSeverity="${{ env.SCAN_SEVERITY }}"
               IFS=',' read -ra severities <<< "$desiredSeverity"  # Split the severity string
 
               # Print the tags array for debugging
-              jq '.runs[0].tool.driver.rules[].properties.tags' "${{ env.IMAGE_TAG }}-image-vulnerability-report.json"
+              jq '.runs[0].tool.driver.rules[].properties.tags' "${{ env.COMMIT_ID }}-image-vulnerability-report.json"
 
               VULNERABILITY_COUNT=0
 
               for severity in "${severities[@]}"; do
-                count=$(jq --arg severity "$severity" '.runs[0].tool.driver.rules | map(select(.properties.tags and (.properties.tags | map(tostring) | index($severity) // empty))) | length' "${{ env.IMAGE_TAG }}-image-vulnerability-report.json")
+                count=$(jq --arg severity "$severity" '.runs[0].tool.driver.rules | map(select(.properties.tags and (.properties.tags | map(tostring) | index($severity) // empty))) | length' "${{ env.COMMIT_ID }}-image-vulnerability-report.json")
                 echo "Number of $severity vulnerabilities: $count"
                 VULNERABILITY_COUNT=$((VULNERABILITY_COUNT + count))
               done
@@ -239,10 +240,10 @@ jobs:
 
 
               # Minifying Json
-              jq -c '.' ${{ env.IMAGE_TAG }}-image-vulnerability-report.json > ${{ env.IMAGE_TAG }}-image-vulnerability-report.min.json
+              jq -c '.' ${{ env.COMMIT_ID }}-image-vulnerability-report.json > ${{ env.COMMIT_ID }}-image-vulnerability-report.min.json
 
               # Uploading Minified Trivy Resuls
-              response=$(curl -X POST -F 'file=@${{ env.IMAGE_TAG }}-image-vulnerability-report.min.json' -F 'provider=aws' -F 'resourceType=trivy-report' -F 'cloudStoragePath=/${{ env.PIPELINE_APPLICATION_ID }}/trivy_results/'  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-environment-id: ${{ env.PIPELINE_ENVIRONMENT_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-resource-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'x-auth-by: sa' -H 'Content-Type: multipart/form-data'  '${{ env.S3_UPLOAD_ENDPOINT }}')
+              response=$(curl -X POST -F 'file=@${{ env.COMMIT_ID }}-image-vulnerability-report.min.json' -F 'provider=aws' -F 'resourceType=image-vulnerability-report' -F 'cloudStoragePath=/${{ env.PIPELINE_APPLICATION_ID }}/image-vulnerability-reports/'  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-environment-id: ${{ env.PIPELINE_ENVIRONMENT_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-resource-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'x-auth-by: sa' -H 'Content-Type: multipart/form-data'  '${{ env.S3_UPLOAD_ENDPOINT }}')
 
               if echo "$response" | grep -q '"success":true'; then
                 echo "SUCCESS :: $response"
@@ -262,7 +263,7 @@ jobs:
               fi
               
       - name: 'Run :: Build, tag, and push image'
-        run: docker push ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        run: docker push ${{ env.IMAGE_NAME }}:${{ env.COMMIT_ID }}
         if: ${{ env.STEPS_CAN_PROCEED == 'true' }}
   _status-success:
     name: _status Success
@@ -272,7 +273,7 @@ jobs:
       - build-and-push
     if: ${{ !(failure() || cancelled()) }}
     steps:
-      - name: 'Run :: Decoding Secrets 7ab0afd6-d614-49ab-b861-2d3427d58801'
+      - name: 'Run :: Decoding Secrets c1b22b2a-70ce-428f-87ed-912521af3e74'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -295,7 +296,7 @@ jobs:
       - build-and-push
     if: ${{ failure() || cancelled() }}
     steps:
-      - name: 'Run :: Decoding Secrets 38d8c4a4-a598-4e39-8c84-1b60d1f227eb'
+      - name: 'Run :: Decoding Secrets 9b992dfe-0c2b-4d44-94a3-d58825c96bc3'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -320,7 +321,7 @@ jobs:
       needs.build-and-push.outputs.stepsCanProceed == 'true' && ${{
       github.event.client_payload.releaseData == null }}
     steps:
-      - name: 'Run :: Decoding Secrets 8a6367f5-61e4-4a5b-bd8f-871a1e40d32c'
+      - name: 'Run :: Decoding Secrets 8c68d479-d6ab-4817-946b-0831adbf5b61'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -333,7 +334,7 @@ jobs:
       - name: 'Run :: Deploy and Notify Resource Service'
         run: |2-
               
-              response=$(curl -X PATCH -d "imageRegistryURL=${{ env.IMAGE_NAME }}&appVersionId=${{ env.DEPLOYMENT_APP_VERSION_ID }}&tag=${{ env.IMAGE_TAG }}&containerName=${{ env.DEPLOYMENT_CONTAINER_NAME }}&shouldDeploy=${{env.DEPLOY_STEP_SHOULD_DEPLOY}}&pipelineRunId=${{ github.run_id }}&commitDetails[commitHash]=${{ github.sha }}&commitDetails[commitAvatar]=https://github.com/${{ github.event.head_commit.author.name }}.png&commitDetails[commitTime]=${{ github.event.head_commit.timestamp }}&commitDetails[commitMessage]=${{ github.event.head_commit.message }}&commitDetails[commitUser]=${{ github.event.head_commit.author.name }}"  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-environment-id: ${{ env.PIPELINE_ENVIRONMENT_ID }}' -H 'x-application-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-resource-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'x-auth-by: sa' -H 'Content-Type: application/x-www-form-urlencoded'  '${{ env.DEPLOYMENT_ENDPOINT }}')
+              response=$(curl -X PATCH -d "imageRegistryURL=${{ env.IMAGE_NAME }}&appVersionId=${{ env.DEPLOYMENT_APP_VERSION_ID }}&tag=${{ env.COMMIT_ID }}&containerName=${{ env.DEPLOYMENT_CONTAINER_NAME }}&shouldDeploy=${{env.DEPLOY_STEP_SHOULD_DEPLOY}}&pipelineRunId=${{ github.run_id }}&commitDetails[commitHash]=${{ github.sha }}&commitDetails[commitAvatar]=https://github.com/${{ github.event.head_commit.author.name }}.png&commitDetails[commitTime]=${{ github.event.head_commit.timestamp }}&commitDetails[commitMessage]=${{ github.event.head_commit.message }}&commitDetails[commitUser]=${{ github.event.head_commit.author.name }}"  -H 'Authorization: ${{ env.SERVICE_ACC_ACCESS_TOKEN }}' -H 'x-organization-id: ${{ env.PIPELINE_ORGANIZATION_ID }}' -H 'x-project-id: ${{ env.PIPELINE_PROJECT_ID }}' -H 'x-environment-id: ${{ env.PIPELINE_ENVIRONMENT_ID }}' -H 'x-application-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'x-trace-id: ${{ env.PIPELINE_TRACE_ID }}' -H 'x-resource-id: ${{ env.PIPELINE_APPLICATION_ID }}' -H 'x-auth-by: sa' -H 'Content-Type: application/x-www-form-urlencoded'  '${{ env.DEPLOYMENT_ENDPOINT }}')
               
               status_code=$?
 
