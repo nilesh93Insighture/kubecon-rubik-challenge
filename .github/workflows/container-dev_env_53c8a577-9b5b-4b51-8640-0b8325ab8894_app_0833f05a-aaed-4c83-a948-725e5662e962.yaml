@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: 'Run :: Checkout repository for Code Scan'
         uses: actions/checkout@v4
-      - name: 'Run :: Decoding Secrets 6455bb5a-b5de-4b26-8906-aaeb358e6c03'
+      - name: 'Run :: Decoding Secrets acf0573f-d7e4-4287-a89d-ce6741196296'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -67,7 +67,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
-      - name: 'Run :: Decoding Secrets af37f1c2-4e64-49cc-a40c-f7537df0372b'
+      - name: 'Run :: Decoding Secrets 7b01269d-cb01-4730-8c3b-b55f7bb53334'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.client_payload.releaseData }}
     steps:
-      - name: 'Run :: Decoding Secrets 1e6a4061-887d-49e9-b57a-a94b14851ade'
+      - name: 'Run :: Decoding Secrets 1555a7f0-4849-45e8-814d-abe1ba0af84f'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -160,7 +160,7 @@ jobs:
 
               git fetch
               git checkout ${{ github.event.client_payload.commitId }}
-      - name: 'Run :: Decoding Secrets 00cc5758-0427-4b3e-9031-fe1bd256ff24'
+      - name: 'Run :: Decoding Secrets 62774ff1-d624-46f0-855d-deb33c8916cd'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -190,8 +190,8 @@ jobs:
       - name: 'Run :: Build With Docker'
         run: >-
           docker build -t ${{ env.IMAGE_NAME }}:${{ env.COMMIT_ID }} -f
-          ${{env.DOCKER_FILE_PATH}} ${{ env.DOCKER_BUILD_ARGS }}
-          ${{env.DOCKER_BUILD_CONTEXT}}
+          ${{env.DOCKER_FILE_PATH}} --build-arg BUILT_WITH=SKYU${{
+          env.DOCKER_BUILD_ARGS }} ${{env.DOCKER_BUILD_CONTEXT}}
         if: ${{ env.STEPS_CAN_PROCEED == 'true' }}
       - name: 'Run :: Trivy vulnerability scanner'
         uses: aquasecurity/trivy-action@master
@@ -273,7 +273,7 @@ jobs:
       - build-and-push
     if: ${{ !(failure() || cancelled()) }}
     steps:
-      - name: 'Run :: Decoding Secrets c1b22b2a-70ce-428f-87ed-912521af3e74'
+      - name: 'Run :: Decoding Secrets 9fc89dab-b026-4f88-b114-c2ed1ec086b9'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -296,7 +296,7 @@ jobs:
       - build-and-push
     if: ${{ failure() || cancelled() }}
     steps:
-      - name: 'Run :: Decoding Secrets 9b992dfe-0c2b-4d44-94a3-d58825c96bc3'
+      - name: 'Run :: Decoding Secrets 5a5e2a2c-8c5f-401e-9151-f1f2a1d2680b'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
@@ -321,7 +321,7 @@ jobs:
       needs.build-and-push.outputs.stepsCanProceed == 'true' && ${{
       github.event.client_payload.releaseData == null }}
     steps:
-      - name: 'Run :: Decoding Secrets 8c68d479-d6ab-4817-946b-0831adbf5b61'
+      - name: 'Run :: Decoding Secrets 9cbd6bd5-9aa0-455b-9f11-500309ee4f7a'
         run: |2-
 
                   if [ ! -x "$(command -v jq)" ]; then
