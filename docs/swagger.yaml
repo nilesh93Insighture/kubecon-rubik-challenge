@@ -1,53 +1,75 @@
-basePath: /api/v1
-definitions:
-  main.ChallengeRequest:
-    properties:
-      challengeWon:
-        example: true
-        type: boolean
-      userEmail:
-        example: nilesh@wso2.com
-        type: string
-    type: object
-  main.ChallengeResponse:
-    properties:
-      id:
-        type: string
-      message:
-        type: string
-    type: object
+openapi: 3.0.0
 info:
-  contact: {}
-  title: Rubik Challenge API documentation
+  title: Say Hello API
   version: 1.0.0
+servers:
+  - url: /api/v1
 paths:
-  /api/v1/challenge:
+  /sayHello:
     post:
-      consumes:
-      - application/json
-      parameters:
-      - description: data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/main.ChallengeRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Okay
-          schema:
-            $ref: '#/definitions/main.ChallengeResponse'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Send Challenge Result Email
+      summary: Say Hello
       tags:
-      - Email
-swagger: "2.0"
+        - Hello
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SayHelloRequest'
+      responses:
+        '200':
+          description: Okay
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SayHelloResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: string
+  /force-panic:
+    get:
+      summary: Force Panic
+      tags:
+        - Panic
+      responses:
+        '200':
+          description: Okay
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas:
+    SayHelloRequest:
+      type: object
+      properties:
+        data:
+          type: string
+      required:
+        - data
+    SayHelloResponse:
+      type: object
+      properties:
+        message:
+          type: string

@@ -11,20 +11,17 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/nilesh93/kubecon-rubik-challenge/helpers"
-	"github.com/nilesh93/kubecon-rubik-challenge/services"
 	"github.com/sirupsen/logrus"
 )
 
-type ChallengeRequest struct {
-	UserEmail    string `json:"userEmail,omitempty" example:"nilesh@wso2.com"`
-	ChallengeWon bool   `json:"challengeWon,omitempty" example:"true"`
+type SayHelloRequest struct {
+	Name string `json:"userEmail,omitempty" example:"John Doe"`
 }
-type ChallengeResponse struct {
-	Id      string `json:"id,omitempty"`
+type SayHelloResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
-// @title Rubik Challenge API documentation
+// @title Say Hello API
 // @version 1.0.0
 // @BasePath /api/v1
 func main() {
@@ -53,25 +50,27 @@ func main() {
 	})
 
 	r.Route("/api/v1/", func(r chi.Router) {
-		r.Post("/challenge", ChallengeRoute)
-		r.Get("/vuln", VulnFunc)
+		r.Post("/sayHello", HelloRoute)
+		r.Get("/force-panic", func(w http.ResponseWriter, r *http.Request) {
+			panic("force panic")
+		})
 	})
 
 	logrus.Info("http server started")
 	http.ListenAndServe(":4000", r)
 }
 
-// @Summary Send Challenge Result Email
-// @Tags Email
+// @Summary Say Hello
+// @Tags Hello
 // @Accept json
 // @Produce json
-// @Param data body ChallengeRequest	true	"data"
-// @Success 200 {object} ChallengeResponse	"Okay"
+// @Param data body SayHelloRequest	true	"data"
+// @Success 200 {object} SayHelloResponse	"Okay"
 // @Failure 400 {string} string
 // @Failure 500 {string} string
-// @Router /api/v1/challenge [post]
-func ChallengeRoute(w http.ResponseWriter, r *http.Request) {
-	body := ChallengeRequest{}
+// @Router /sayHello [post]
+func HelloRoute(w http.ResponseWriter, r *http.Request) {
+	body := SayHelloRequest{}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		helpers.RespondWithError(w, 400, err.Error())
@@ -79,7 +78,7 @@ func ChallengeRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	obj, err := ChallengeHandler(ctx, body)
+	obj, err := HelloHandler(ctx, body)
 	if err != nil {
 		helpers.RespondWithError(w, 500, err.Error())
 		return
@@ -87,25 +86,24 @@ func ChallengeRoute(w http.ResponseWriter, r *http.Request) {
 	helpers.RespondwithJSON(w, 200, obj)
 }
 
-func VulnFunc(w http.ResponseWriter, r *http.Request) {
-	name := r.URL.Query().Get("name")
-	fmt.Fprintf(w, "Hello, %s!", name)
-}
-
-func ChallengeHandler(ctx context.Context, req ChallengeRequest) (*ChallengeResponse, error) {
+func HelloHandler(ctx context.Context, req SayHelloRequest) (*SayHelloResponse, error) {
 
 	if v, err := helpers.IsValid(req); !v {
 		return nil, err
 	}
 
-	res, err := services.SendEmail(ctx, req.UserEmail, req.ChallengeWon)
-	if err != nil {
-		return nil, err
-	}
+	body := SayHelloResponse{
 
-	body := ChallengeResponse{
-		Id:      res,
-		Message: "Success",
+		Message: fmt.Sprintf("Hello, %s!", req.Name),
 	}
 	return &body, nil
 }
+
+// @Summary Force Panic
+// @Tags Panic
+// @Accept json
+// @Produce json
+// @Success 200 {object} string	"Okay"
+// @Failure 400 {string} string
+// @Failure 500 {string} string
+// @Router /force-panic [get]

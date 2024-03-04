@@ -1,82 +1,128 @@
 {
-    "swagger": "2.0",
+    "openapi": "3.0.0",
     "info": {
-        "title": "Rubik Challenge API documentation",
-        "contact": {},
-        "version": "1.0.0"
+      "title": "Say Hello API",
+      "version": "1.0.0"
     },
-    "basePath": "/api/v1",
+    "servers": [
+      {
+        "url": "/api/v1"
+      }
+    ],
     "paths": {
-        "/api/v1/challenge": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Email"
-                ],
-                "summary": "Send Challenge Result Email",
-                "parameters": [
-                    {
-                        "description": "data",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.ChallengeRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Okay",
-                        "schema": {
-                            "$ref": "#/definitions/main.ChallengeResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
+      "/sayHello": {
+        "post": {
+          "summary": "Say Hello",
+          "tags": [
+            "Hello"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SayHelloRequest"
                 }
+              }
             }
+          },
+          "responses": {
+            "200": {
+              "description": "Okay",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SayHelloResponse"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
         }
+      },
+      "/force-panic": {
+        "get": {
+          "summary": "Force Panic",
+          "tags": [
+            "Panic"
+          ],
+          "responses": {
+            "200": {
+              "description": "Okay",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
-    "definitions": {
-        "main.ChallengeRequest": {
-            "type": "object",
-            "properties": {
-                "challengeWon": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "userEmail": {
-                    "type": "string",
-                    "example": "nilesh@wso2.com"
-                }
+    "components": {
+      "schemas": {
+        "SayHelloRequest": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string"
             }
+          },
+          "required": [
+            "data"
+          ]
         },
-        "main.ChallengeResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
+        "SayHelloResponse": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
             }
+          }
         }
+      }
     }
-}
+  }
+  

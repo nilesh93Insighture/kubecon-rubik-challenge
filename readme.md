@@ -4,10 +4,6 @@ trigger build
 
 Nilesh Jayanandana
 
-### Environment Variables
-
-- domain - email domain of mailgun
-- apiKey - apiKey of mailgun
 
 
 ### Choreo BYOC
