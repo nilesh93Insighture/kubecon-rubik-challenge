@@ -68,7 +68,7 @@ func main() {
 // @Success 200 {object} SayHelloResponse	"Okay"
 // @Failure 400 {string} string
 // @Failure 500 {string} string
-// @Router /sayHello [post]
+// @Router /api/v1/sayHello [post]
 func HelloRoute(w http.ResponseWriter, r *http.Request) {
 	body := SayHelloRequest{}
 
