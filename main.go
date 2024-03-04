@@ -15,7 +15,7 @@ import (
 )
 
 type SayHelloRequest struct {
-	Name string `json:"userEmail,omitempty" example:"John Doe"`
+	Name string `json:"name,omitempty" example:"John Doe"`
 }
 type SayHelloResponse struct {
 	Message string `json:"message,omitempty"`

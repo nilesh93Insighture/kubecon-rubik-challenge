@@ -106,12 +106,12 @@
         "SayHelloRequest": {
           "type": "object",
           "properties": {
-            "data": {
+            "name": {
               "type": "string"
             }
           },
           "required": [
-            "data"
+            "name"
           ]
         },
         "SayHelloResponse": {
