@@ -15,7 +15,7 @@ COPY . .
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/app -buildvcs=false
 
-FROM alpine
+FROM ubuntu
 COPY --from=build-env /go/bin/app /go/bin/app
 USER 10014
 ENTRYPOINT ["/go/bin/app"]
